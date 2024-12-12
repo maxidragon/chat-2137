@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: chat-2137-backend
+    ports:
+      - '5006:5006'
+    restart: unless-stopped
+    healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:5006/health || exit 1"]
+        interval: 5s
+        timeout: 20s
+        retries: 50
