@@ -1,0 +1,49 @@
+name: Build and Publish Flutter App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+        working-directory: frontend
+
+      - name: Build Android APK
+        run: flutter build apk --release
+        working-directory: frontend
+
+      - name: Build Web
+        run: flutter build web
+        working-directory: frontend
+
+      - name: Build Linux
+        run: flutter build linux
+        working-directory: frontend
+
+      - name: Upload Artifacts to Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: |
+            frontend/build/app/outputs/flutter-apk/app-release.apk
+            frontend/build/web/**
+            frontend/build/linux/**
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+          name: "Flutter Build - ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+          overwrite: true
